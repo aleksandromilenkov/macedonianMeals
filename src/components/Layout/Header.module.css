@@ -27,3 +27,12 @@
     object-fit: cover;
     transform: rotateZ(-5deg) translateY(-4rem) translateX(-1rem);
   }
+
+  @media screen and (max-width:500px){
+    html{
+      font-size: 62.5%;
+    }
+    .header{
+      flex-direction: column;
+    }
+  }
