@@ -1,50 +1,67 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Card from "../UI/Card";
 import classes from "./AvailableMeals.module.css";
 import MealItem from "./MealItem/MealItem";
 
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Filled Peppers",
-    description: "Green peppers filled with mix of meat and veggies",
-    price: 22.99,
-  },
-  {
-    id: "m2",
-    name: "Musaka",
-    description: "A Macedonian specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    name: "Sarma",
-    description: "Rolled cabage filled with meat and veggies",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    name: "Tavce Gravce",
-    description: "Beans on Macedonian way!",
-    price: 8.99,
-  },
-];
-
 const AvailableMeals = () => {
-  const mealsList = DUMMY_MEALS.map((meal) => (
-    <MealItem
-      id={meal.id}
-      key={meal.id}
-      name={meal.name}
-      price={meal.price}
-      description={meal.description}
-    />
-  ));
+  const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const resp = await fetch(
+        "https://react-http-max-f7bf6-default-rtdb.firebaseio.com/meals.json"
+      );
+      if (!resp.ok) {
+        throw new Error("Can not fetch data.");
+      }
+      const data = await resp.json();
+      let niza = [];
+      for (const key in data) {
+        niza.push({
+          id: key,
+          name: data[key].name,
+          description: data[key].description,
+          price: data[key].price,
+        });
+      }
+      setMeals(niza);
+      setIsLoading(false);
+    };
+    fetchMeals().catch((err) => {
+      setError(err.message);
+      setIsLoading(false);
+    });
+  }, []);
+  const mealsList = meals.map((meal, idx) => {
+    return (
+      <MealItem
+        id={meal.id}
+        key={idx}
+        name={meal.name}
+        price={meal.price}
+        description={meal.description}
+      />
+    );
+  });
+
+  let content = <ul>{mealsList}</ul>;
+  if (isLoading)
+    return (
+      <section className={classes.mealsLoading}>
+        <p>Loading...</p>
+      </section>
+    );
+  if (error) {
+    return (
+      <section className={classes.mealsError}>
+        <p>{error}</p>
+      </section>
+    );
+  }
   return (
     <section className={classes.meals}>
-      <Card>
-        <ul>{mealsList}</ul>
-      </Card>
+      <Card>{content}</Card>
     </section>
   );
 };

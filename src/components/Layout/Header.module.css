@@ -30,7 +30,7 @@
 
   @media screen and (max-width:500px){
     html{
-      font-size: 62.5%;
+      font-size: 70%;
     }
     .header{
       flex-direction: column;
